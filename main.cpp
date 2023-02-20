@@ -4,14 +4,14 @@
 #include <random>
 
 
-#define MIN_SHIP_AMOUNT 2
-#define MAX_SHIP_AMOUNT 5 
+#define MIN_SHIP_AMOUNT 2  // минимальное количество кораблей каждого типа
+#define MAX_SHIP_AMOUNT 5  // максимальное количество кораблей каждого типа
 
-#define MIN_SHIP_NAME 500
-#define MAX_SHIP_NAME 800
+#define MIN_SHIP_NAME 500  // минимальное значение имени корабля
+#define MAX_SHIP_NAME 800  // максимальное значение имени корабля
 
-#define MIN_WEAPONS_AMOUNT 4
-#define MAX_WEAPONS_AMOUNT 15
+#define MIN_WEAPONS_AMOUNT 3    //минимальное количество вооружений каждого типа
+#define MAX_WEAPONS_AMOUNT 10   //максимальное количество вооружений каждого типа
 
 
 using namespace std;
@@ -42,7 +42,7 @@ public:
   }
   string getType () override
   {
-    return "Bs";
+    return "buckshots";
   }
 };
 
@@ -55,135 +55,207 @@ public:
   }
   string getType () override
   {
-    return "Cb";  
+    return "cannonballs";  
   }
 };
-
 
 // корабли
 class Warship
 {
 protected:
+    Cannonball cannonball;
+    Buckshot buckshot;
     string shipType;        // Fregat, cruiser, linkor
-    int name;               // The name of the ship is given by the number
-    int countOfWeapons;     // Count of weapons
+    int name;               // именем корабля будет номер
+    int countOfCannonball;
+    int countOfBuckshot;
 public:
-  virtual void shoot(Weapon & weap1, Weapon & weap2, string ammoType)
-  {
-        if (ammoType == weap1.getType())
-            cout << "Ship type " << shipType<< ", name(number): " << name << " make " << weap1.shoot() << "by " << countOfWeapons << " weapon(s)" << endl;
-  }
-  virtual void getInfo()
-  {
-      cout << "name(number): " << this->name << " with " << this->countOfWeapons;
-  }
+    virtual void shoot(string ammoType)
+    {        
+        if (ammoType == this->cannonball.getType() && countOfCannonball != 0)
+            cout << "Ship type: " << shipType<< ", name(number): " << name << " make " << this->cannonball.shoot() << "by " << this->countOfCannonball << " " << this->cannonball.getType() << endl;
+        if (ammoType == this->buckshot.getType() && countOfBuckshot != 0)
+            cout << "Ship type: " << shipType<< ", name(number): " << name << " make " << this->buckshot.shoot() << "by " << this->countOfBuckshot << " " << this->buckshot.getType() << endl;
+    }
+    virtual void shootAll()
+    {
+        if (countOfCannonball != 0)
+            cout <<" make " << this->cannonball.shoot() <<" by " << this->countOfCannonball << " " << this->cannonball.getType() << endl;
+        else if (countOfBuckshot != 0)
+            cout <<" make " << this->buckshot.shoot() << " by " << this->countOfBuckshot << " " << this->buckshot.getType() <<endl;
+    }
+        
+    virtual void getInfo()
+    {
+        cout << this->shipType << " name(number): " << this->name << " with " << this->countOfCannonball+this->countOfBuckshot << " weapons ";
+    }  
 };
 
 class Cruiser : public Warship
 {
 public:
-    Cruiser()
+    Cruiser(){}
+    Cruiser(Buckshot buckshot)
     {
+        this->buckshot = buckshot;
         this->shipType = "cruiser";
         this->name = getRandom(MIN_SHIP_NAME, MAX_SHIP_NAME);
-        this->countOfWeapons = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT); // Buckshot
+        this->countOfCannonball = 0;
+        this->countOfBuckshot = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);  // Buckshot
     }
 };
 
 class Fregate: public Warship  
 {
+
+  
 public:
-    Fregate() 
+    Fregate(){}
+    Fregate(Cannonball cannonball) 
     {
+        this->cannonball = cannonball;
         this->shipType = "fregat";
         this->name = getRandom(MIN_SHIP_NAME, MAX_SHIP_NAME);
-        this->countOfWeapons = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);//Cannonball
+        this->countOfCannonball = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);//Cannonball
+        this->countOfBuckshot = 0;
     }
 };
 
 class Linkor : public Warship
 {
-private:
-    int countOfSecondWeapons;
+  
 public:
-    Linkor()
+    Linkor(){}
+    Linkor(Buckshot buckshot, Cannonball cannonball)
     {
+        this->buckshot = buckshot;
+        this->cannonball = cannonball;
         this->shipType = "linkor";
         this->name = getRandom(MIN_SHIP_NAME, MAX_SHIP_NAME);
-        this->countOfWeapons = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);//Cannonball
-        this->countOfSecondWeapons = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);  // Buckshot
+        this->countOfCannonball = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);//Cannonball
+        this->countOfBuckshot = getRandom(MIN_WEAPONS_AMOUNT, MAX_WEAPONS_AMOUNT);  // Buckshot
     }
-    void shoot(Weapon & weap1, Weapon & weap2, string ammoType) override
+    void shoot(string ammoType) override
     {
-        if (ammoType == weap1.getType())
-            cout << "Ship type " << shipType<< ", name(number) " << name << " make " << weap1.shoot() << "by " << countOfWeapons << " weapon(s)" << endl;
-        else if (ammoType == weap2.getType())
-            cout << "Ship type " << shipType<< ", name(number) " << name << " make " << weap2.shoot() << "by " << countOfSecondWeapons << " weapon(s)" << endl;
+        if (ammoType == cannonball.getType())
+            cout << "Ship type: " << this->shipType<< ", name(number): " << this->name << " make " << this->cannonball.shoot() << "by " << this->countOfCannonball << " " << this->cannonball.getType() << endl;
+        else if (ammoType == buckshot.getType())
+            cout << "Ship type: " << this->shipType<< ", name(number): " << this->name << " make " << this->buckshot.shoot() << "by " << this->countOfBuckshot << " " << this->buckshot.getType() << endl;
         else
-            cout << "Ship type " << shipType<< ", name(number) " << name << " make " << weap1.shoot() << "by " << countOfWeapons << " and make " << weap2.shoot() << "by " << countOfSecondWeapons << " weapon(s)" << endl;    
-    }    
-    void getInfo() override
+            cout << "Ship type: " << this->shipType<< ", name(number): " << this->name << " make " << this->cannonball.shoot() << "by " << this->countOfCannonball << " and make " << this->buckshot.shoot() << "by " << this->countOfBuckshot << " weapon(s)" << endl;    
+    }
+    void shootAll() override
     {
-        cout << "name(number): " << this->name << " with " << this->countOfWeapons << " 1st weapons and " << this->countOfSecondWeapons << " 2nd weapons" ;
+        cout <<" make " << cannonball.shoot() <<" by " << countOfCannonball << " " << this->cannonball.getType() <<" and " << this->buckshot.shoot() << " by " << countOfBuckshot << " " << this->buckshot.getType() <<endl;
     }
 };
-
-// Cruiser buildCruiser(){
-//   return Cruiser();
-// }
-
-void shipBuilder()
-{
-    //build cruisers:
-    Cruiser shipsCruiser[getRandom(MIN_SHIP_AMOUNT, MAX_SHIP_AMOUNT)];
-    
-    cout << "was builded " << sizeof(shipsCruiser)/sizeof(Cruiser) << " cruisers:" << endl;
-    for (int i = 0; i < sizeof(shipsCruiser)/sizeof(Cruiser); i++)
-    {
-        cout << i+1 << ") "; 
-        shipsCruiser[i].getInfo();
-        cout << " cannons (buckshots)." << endl;
-    }
-    
-    //build fregats:
-    Fregate shipsFregate[getRandom(MIN_SHIP_AMOUNT, MAX_SHIP_AMOUNT)];
-    
-    cout << endl << "was builded " << sizeof(shipsFregate)/sizeof(Fregate) << " fregats:" << endl;
-    for (int i = 0; i < sizeof(shipsFregate)/sizeof(Fregate); i++)
-    {
-        cout << i+1 << ") "; 
-        shipsFregate[i].getInfo();
-        cout << " cannons (cannonballs)." << endl;
-    }
-
-    //build linkors:
-    Linkor shipsLinkor[getRandom(MIN_SHIP_AMOUNT, MAX_SHIP_AMOUNT)];
-    
-    cout << endl << "was builded " << sizeof(shipsLinkor)/sizeof(Linkor) << " linkors:" << endl;
-    for (int i = 0; i < sizeof(shipsLinkor)/sizeof(Linkor); i++)
-    {
-        cout << i+1 << ") "; 
-        shipsLinkor[i].getInfo();
-        cout << endl;
-    }
-}
 
 
 int main ()
 {
     srand(time(NULL));
     
-    // cout << getRandom(500, 900) << endl;
+    // создаём вооружение
+    Cannonball cannonballs; 
+    Buckshot buckshots;
     
-    
-    shipBuilder();
-    // Buckshot buckshots;
-    // Cannonball cannonballs;
-    
-    
-    // Cruiser s1("lol", 6);
-    // s1.shoot(buckshots, buckshots, "Bs");
+    // строим флотилию
+    int shipsCruiserAmount = getRandom(MIN_SHIP_AMOUNT, MAX_SHIP_AMOUNT);
+    Cruiser shipsCruiser[shipsCruiserAmount];
+    for (int i = 0; i < shipsCruiserAmount; i++)
+        shipsCruiser[i] = Cruiser(buckshots);
 
+    int shipsFregateAmount = getRandom(MIN_SHIP_AMOUNT, MAX_SHIP_AMOUNT);
+    Fregate shipsFregate[shipsFregateAmount];
+    for (int i = 0; i < shipsFregateAmount; i++)
+        shipsFregate[i] = Fregate(cannonballs);
+    
+    int shipsLinkorAmount = getRandom(MIN_SHIP_AMOUNT, MAX_SHIP_AMOUNT);
+    Linkor shipsLinkor[shipsLinkorAmount];
+     for (int i = 0; i < shipsLinkorAmount; i++)
+        shipsLinkor[i] = Linkor(buckshots, cannonballs);
+    
+    // выводим информацию о флотилии и доступные команды
+    cout << "was builded " << shipsCruiserAmount << " cruisers:" << endl;
+    cout << "was builded " << shipsFregateAmount << " fregats:" << endl;
+    cout << "was builded " << shipsLinkorAmount << " linkors:" << endl << endl;
+    
+    cout << "Available commands:" << "\n";
+    cout << "fireAll" << "\n";
+    cout << "fireCruisers, fireFregates, fireLinkors" << "\n";
+    cout << "fireCannonballs, fireBuckshots" << "\n";
+    cout << "- - - - -" << "\n";
+    
+    
+    // запускаем контроллер
+    while (1)
+    {
+        cout << "\n" << "print command:" << "\n";
+        string command;
+        cin >> command;
+        cout<< "> > > > >" << "\n";
+        
+        if (command == "fireAll")
+        {
+            for (int i = 0; i < shipsCruiserAmount; i++)
+            {
+                shipsCruiser[i].getInfo(); 
+                shipsCruiser[i].shootAll();
+            }
+            
+            for (int i = 0; i < shipsFregateAmount; i++)
+            {
+                shipsFregate[i].getInfo();
+                shipsFregate[i].shootAll();
+            }
+            
+            for (int i = 0;i < shipsLinkorAmount; i++)
+            {
+                shipsLinkor[i].getInfo();
+                shipsLinkor[i].shootAll();
+            }
+        }
+        
+        else if (command == "fireCannonballs" || command == "fireBuckshots")
+        {
+            string weaponType = "buckshots";
+            if (command == "fireCannonballs")
+                weaponType = "cannonballs";
+            for (int i = 0; i < shipsCruiserAmount; i++)
+                shipsCruiser[i].shoot(weaponType);
+            
+            for (int i = 0; i < shipsFregateAmount; i++)
+                shipsFregate[i].shoot(weaponType);
+            
+            for (int i = 0;i < shipsLinkorAmount; i++)
+                shipsLinkor[i].shoot(weaponType);
+            
+        }
+        else if (command == "fireCruisers")
+            for (int i = 0; i < shipsCruiserAmount; i++)
+                {
+                    shipsCruiser[i].getInfo(); 
+                    shipsCruiser[i].shootAll();
+                }
+            
+        else if (command == "fireFregates")
+            for (int i = 0; i < shipsFregateAmount; i++)
+                {
+                    shipsFregate[i].getInfo();
+                    shipsFregate[i].shootAll();
+                }
+        else if (command == "fireLinkors")
+            for (int i = 0;i < shipsLinkorAmount; i++)
+                {
+                    shipsLinkor[i].getInfo();
+                    shipsLinkor[i].shootAll();
+                }
+            
+        else
+            cout << "invalid command" << endl;
+        
+    }
     
   return 0;
 }
+
